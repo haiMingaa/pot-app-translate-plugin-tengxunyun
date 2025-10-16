@@ -5,7 +5,7 @@ async function translate(text, from, to, options) {
     let plain_text = text.replaceAll("/", "@@");
     let encode_text = encodeURIComponent(plain_text);
     if (url === undefined || url.length === 0) {
-        url = "lingva.pot-app.com"
+        url = "https://api.hunyuan.cloud.tencent.com/v1"
     }
     if (!url.startsWith("http")) {
         url = `https://${url}`;
