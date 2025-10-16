@@ -4,7 +4,22 @@
   "icon": "lingva.svg",
   "display": "Tengxunyun",
   "homepage": "https://github.com/haiMingaa/pot-app-translate-plugin-tengxunyun",
-  "needs": [{ "key": "requestPath", "display": "请求地址" }],
+  "needs": [
+    {
+      "key": "model",
+      "display": "模型选择",
+      "type": "select",
+      "options": {
+        "deepseek-chat": "deepseek-chat",
+        "deepseek-reasoner": "deepseek-reasoner"
+      },
+      "default": "deepseek-chat"
+    },
+    {
+      "key": "apiKey",
+      "display": "API密钥",
+      "type": "input"
+    }],
   "language": {
     "auto": "auto",
     "zh_cn": "zh",
