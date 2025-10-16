@@ -5,7 +5,7 @@ async function translate(text， from， to, options) {
     let { apiKey， model = "hunyuan-turbos-latest" } = config;
     
     // 设置默认请求路径
-    const requestPath = "https://api.hunyuan.cloud.tencent.com/v1";
+    const requestPath = "https://api.hunyuan.cloud.tencent.com/v1/chat/completions";
     
     const headers = {
         'Content-Type': 'application/json',
