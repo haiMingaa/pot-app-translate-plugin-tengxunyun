@@ -10,10 +10,9 @@
       "display": "模型选择",
       "type": "select",
       "options": {
-        "deepseek-chat": "deepseek-chat",
-        "deepseek-reasoner": "deepseek-reasoner"
+        "hunyuan-turbos-latest": "hunyuan-turbos-latest"
       },
-      "default": "deepseek-chat"
+      "default": "hunyuan-turbos-latest"
     },
     {
       "key": "apiKey",
