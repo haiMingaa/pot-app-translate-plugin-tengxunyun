@@ -1,4 +1,4 @@
-async function translate(text， from, 到， options) { 
+async function translate(text, from, to, options) { 
     const { config, utils } = options;
     const { tauriFetch: fetch } = utils;
     
@@ -20,13 +20,13 @@ async function translate(text， from, 到， options) {
         messages: [
             {
                 role: "system",
-                content: "You are a professional translation engine. Please translate the text into a natural, fluent, 和 professional tone. Only translate the text; do not explain or comment."
-            }，
+                content: "You are a professional translation engine. Please translate the text into a natural, fluent, and professional tone. Only translate the text; do not explain or comment."
+            },
             {
                 role: "user",
                 content: `Translate this text from ${from} to ${to}:\n${text}`
             }
-        ]，
+        ],
         temperature: 0.1,
         top_p: 0.99,
         frequency_penalty: 0,
