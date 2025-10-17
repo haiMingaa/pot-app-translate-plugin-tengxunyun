@@ -27,11 +27,7 @@ async function translate(text, from, to, options) {
                 content: `Translate this text from ${from} to ${to}:\n${text}`
             }
         ],
-        temperature: 0.1,
-        top_p: 0.99,
-        frequency_penalty: 0,
-        presence_penalty: 0,
-        max_tokens: 2000
+        "enable_enhancement": true
     };
 
     // ✅ 关键修改：使用 type + payload
