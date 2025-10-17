@@ -1,54 +1,101 @@
-async function translate(text, from, to, options) { 
-    const { config, utils } = options;
-    const { tauriFetch: fetch } = utils;
-    
-    let { apiKey, model = "hunyuan-turbos-latest" } = config;
+async function translate(text, from, to, options) {
+    const { config, setResult, utils } = options;
+    const { http } = utils;
+    const { fetch, Body, ResponseType } = http;
 
-    if (!apiKey) {
-        throw "Missing Hunyuan API Key. Please set it in plugin configuration.";
+    // 检查 API Key
+    if (!config.api_key) {
+        throw new Error("Please configure Hunyuan API Key first");
     }
 
     const requestPath = "https://api.hunyuan.cloud.tencent.com/v1/chat/completions";
 
     const headers = {
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${apiKey}`
+        "accept": "application/json",
+        "content-type": "application/json",
+        "Authorization": `Bearer ${config.api_key}`
     };
 
+    // 准备提示词
+    const messages = [
+        {
+            role: "system",
+            content:
+                "You are a professional translation engine. Translate the following text accurately, fluently, and naturally. Only output the translated text without explanation."
+        },
+        {
+            role: "user",
+            content: `Translate from ${from} to ${to}:\n${text}`
+        }
+    ];
+
+    // 是否流式输出
+    const useStream = config.use_stream !== "false";
+
+    // 请求体
     const body = {
-        model: model,
-        messages: [
-            {
-                role: "system",
-                content: "You are a professional translation engine. Please translate the text into a natural, fluent, and professional tone. Only translate the text; do not explain or comment."
-            },
-            {
-                role: "user",
-                content: `Translate this text from ${from} to ${to}:\n${text}`
-            }
-        ],
-        "enable_enhancement": true
+        model: config.model || "hunyuan-turbos-latest",
+        messages,
+        stream: useStream, // ✅ 开启流式输出
+        enable_enhancement: true,
+        temperature: 0.1,
+        top_p: 0.9
     };
 
-    // ✅ 关键修改：使用 type + payload
-    let res = await fetch(requestPath, {
-        method: "POST",
-        headers: headers,
-        body: {
-            type: "Json",     // 告诉 Tauri 这是 JSON 请求体
-            payload: body     // 直接放对象，不要 stringify
-        }
-    });
+    try {
+        const response = await fetch(requestPath, {
+            method: "POST",
+            headers,
+            body: Body.json(body),
+            responseType: useStream ? ResponseType.Text : ResponseType.JSON
+        });
 
-    if (res.ok) {
-        const result = res.data;
-        if (result.choices && result.choices.length > 0) {
-            const translation = result.choices[0].message.content.trim();
-            return translation.replace(/^"|"$/g, "");
-        } else {
-            throw `Unexpected API Response:\n${JSON.stringify(result, null, 2)}`;
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
         }
-    } else {
-        throw `Http Request Error\nStatus: ${res.status}\n${JSON.stringify(res.data, null, 2)}`;
+
+        // ✅ 非流式模式
+        if (!useStream) {
+            const result = response.data?.choices?.[0]?.message?.content?.trim();
+            if (result) return result;
+            throw new Error("Invalid response format");
+        }
+
+        // ✅ 流式模式解析（SSE）
+        let result = "";
+        const lines = response.data.split("\n");
+
+        for (const line of lines) {
+            if (!line.trim() || !line.startsWith("data:")) continue;
+
+            const dataStr = line.slice(5).trim(); // 去掉 "data: "
+            if (dataStr === "[DONE]") break;
+
+            try {
+                const json = JSON.parse(dataStr);
+                const delta = json.choices?.[0]?.delta?.content;
+                if (delta) {
+                    result += delta;
+                    if (setResult) {
+                        setResult(result); // 实时更新 UI
+                        await new Promise(resolve => setTimeout(resolve, 40)); // 控制刷新频率
+                    }
+                }
+            } catch (e) {
+                console.warn("Parse stream error:", e.message, line);
+                continue;
+            }
+        }
+
+        if (!result) throw new Error("No translation result received");
+
+        if (setResult) {
+            await new Promise(resolve => setTimeout(resolve, 100));
+            setResult(result);
+        }
+
+        return result;
+    } catch (error) {
+        throw new Error(`Hunyuan Translation failed: ${error.message}`);
     }
 }
