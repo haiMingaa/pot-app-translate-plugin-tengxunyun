@@ -5,20 +5,47 @@
   "display": "Tengxunyun",
   "homepage": "https://github.com/haiMingaa/pot-app-translate-plugin-tengxunyun",
   "needs": [
-    {
-      "key": "model",
-      "display": "模型选择",
-      "type": "select",
-      "options": {
-        "hunyuan-turbos-latest": "hunyuan-turbos-latest"
-      },
-      "default": "hunyuan-turbos-latest"
-    },
-    {
-      "key": "apiKey",
-      "display": "API密钥",
-      "type": "input"
-    }],
+        {
+            "key": "description",
+            "display": "Plugin Description / 插件說明\n\n[System/User Prompt]\nSupported variables / 支持變數：\n- $text: Text to be translated / 待翻譯文字\n- $from: Source language / 來源語言\n- $to: Target language / 目標語言\n- $detect: Detected language / 偵測到的語言\n\n[Parameters]",
+            "type": "input",
+            "readonly": true
+        },
+        {
+            "key": "api_key",
+            "display": "API Key",
+            "type": "input"
+        },
+        {
+            "key": "model",
+            "display": "Model (default: hunyuan-turbos-latest)",
+            "type": "input"
+        },
+        {
+            "key": "system_prompt",
+            "display": "System Prompt",
+            "type": "input"
+        },
+        {
+            "key": "user_prompt",
+            "display": "User Prompt",
+            "type": "input"
+        },
+        {
+            "key": "parameters",
+            "display": "Parameters (default: {\"temperature\": 0.1})",
+            "type": "input"
+        },
+        {
+            "key": "use_stream",
+            "display": "啟用流式輸出 / Enable streaming",
+            "type": "select",
+            "options": {
+                "true": "是 / Yes",
+                "false": "否 / No"
+            }
+        }
+    ],
   "language": {
     "auto": "auto",
     "zh_cn": "zh",
