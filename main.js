@@ -34,10 +34,14 @@ async function translate(text, from, to, options) {
         max_tokens: 2000
     };
 
+    // ✅ 关键修改：使用 type + payload
     let res = await fetch(requestPath, {
         method: "POST",
         headers: headers,
-        body: JSON.stringify(body)   // ✅ 改成纯 JSON 字符串
+        body: {
+            type: "Json",     // 告诉 Tauri 这是 JSON 请求体
+            payload: body     // 直接放对象，不要 stringify
+        }
     });
 
     if (res.ok) {
