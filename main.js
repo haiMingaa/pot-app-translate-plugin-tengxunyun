@@ -2,19 +2,19 @@ async function translate(text, from, to, options) {
     const { config, utils } = options;
     const { tauriFetch: fetch } = utils;
     
-    // === 从配置中读取 API Key 和模型名 ===
     let { apiKey, model = "hunyuan-turbos-latest" } = config;
-    
-    // === 腾讯混元 Chat Completions 接口 ===
+
+    if (!apiKey) {
+        throw "Missing Hunyuan API Key. Please set it in plugin configuration.";
+    }
+
     const requestPath = "https://api.hunyuan.cloud.tencent.com/v1/chat/completions";
-    
-    // === 请求头 ===
+
     const headers = {
         "Content-Type": "application/json",
         "Authorization": `Bearer ${apiKey}`
     };
-    
-    // === 请求体 ===
+
     const body = {
         model: model,
         messages: [
@@ -34,22 +34,17 @@ async function translate(text, from, to, options) {
         max_tokens: 2000
     };
 
-    // === 发起 POST 请求 ===
     let res = await fetch(requestPath, {
         method: "POST",
         headers: headers,
-        body: {
-            type: "Json",  // Tauri Fetch 特有格式
-            payload: body
-        }
+        body: JSON.stringify(body)   // ✅ 改成纯 JSON 字符串
     });
 
-    // === 处理返回结果 ===
     if (res.ok) {
         const result = res.data;
         if (result.choices && result.choices.length > 0) {
             const translation = result.choices[0].message.content.trim();
-            return translation.replace(/^"|"$/g, ""); // 去掉可能的引号
+            return translation.replace(/^"|"$/g, "");
         } else {
             throw `Unexpected API Response:\n${JSON.stringify(result, null, 2)}`;
         }
